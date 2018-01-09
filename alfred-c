@@ -1,0 +1,26 @@
+#!/bin/sh
+
+api_url="https://monitoring.freifunk-franken.de/api/alfred"
+fetch_ids="64"
+
+for fetch_id in $fetch_ids
+do
+	for socket in /var/run/alfred-*.sock
+	do
+		tmp=$(mktemp)
+
+		echo "{\"$fetch_id\": " > $tmp
+		alfred-json -r "$fetch_id" -s "$socket" >> $tmp
+		echo "}" >> $tmp
+
+		if [ "$zip" = "1" ]; then
+			gzip $tmp
+			tmp="$tmp.gz"
+			HEADER='-H "Content-Encoding: gzip" --compressed'
+		fi
+
+		curl -v -H "Content-type: application/json; charset=UTF-8" $HEADER --data-binary @$tmp $api_url
+
+		rm "$tmp"
+	done
+done
