@@ -1,0 +1,13 @@
+[Unit]
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+
+ExecStart=/usr/sbin/dnsmasq -k --conf-dir=/etc/dnsmasq.d,*.conf --interface br-nuernberg --dhcp-range=10.83.264.0,10.83.264.255,20m --pid-file=/var/run/dhcp-nuernberg.pid --dhcp-leasefile=/var/lib/misc/nuernberg.leases
+
+[Install]
+WantedBy=multi-user.target
